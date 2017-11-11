@@ -56,7 +56,7 @@ def make_transaction_to_address(user, amount, address):
     rpc_connection = connect()
     result = rpc_connection.batch_(commands)
     if result[0]:
-        commands = [["sendtoaddress", address, amount - txfee, "ztipbot withdraw"]]
+        commands = [["sendtoaddress", address, round(amount - txfee, 2), "ztipbot withdraw"]]
         result = rpc_connection.batch_(commands)
         txid = result[0]
         logger.info('creating withdraw transaction (user: %s, amount: %.3f, address: %s)', user.user_id,
