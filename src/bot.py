@@ -89,11 +89,14 @@ def setup_bot():
                                   " and confirmed. \n" +
                                   "\n" +
                                   ":small_blue_diamond: !send !tip \n" +
+                                  ":small_blue_diamond: needs: @who, amount" +
                                   "Tip other users. You have to tag who you want to tip and tell me the amount. " +
                                   "If the operation is successful, the other users is informed of your action. \n" +
                                   "\n" +
                                   ":small_blue_diamond: !withdraw \n" +
-                                  "Withdraw your coins to your wallet. You have to supply an address for this. \n" +
+                                  ":small_blue_diamond: needs: address" +
+                                  "Withdraw all of your coins to your wallet. You have to supply an " +
+                                  "address for this. \n" +
                                   "\n" +
                                   ":small_blue_diamond: !top !rank !leaderboard \n" +
                                   "Show who has tipped the most. \n"
@@ -137,7 +140,7 @@ def setup_bot():
                                  "Don't know who you want to tip. :thinking: ",
                                  "I couldn't find who you want to tip in your message :cry: "
                              ], "insufficient_funds": [
-                                 "You don't have enough money to tip that much :scream: :scream: ",
+                                 "You don't have enough coins to tip that much :scream: :scream: ",
                                  "Not enough funds to transfer ! Consider depositing more coins."
                              ], "error": [
                                  "Something went wrong with the tip. I wrote to logs. :thermometer_face: "
@@ -159,7 +162,7 @@ def setup_bot():
                                       "Done ! You should receive your funds shortly.",
                                       "Success !"
                                   ], "address_not_found": [
-                                      "I couldn't find your withdrawal address. :cry: ",
+                                      "Please tell me where to send your coins. :cry: ",
                                       "Whats the address ? I couldn't find it in your message :cry: "
                                   ], "error": [
                                       "Something went wrong ! :thermometer_face: "
