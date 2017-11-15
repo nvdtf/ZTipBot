@@ -12,7 +12,7 @@ def get_user_by_id(user_id):
         user = User.get(user_id=user_id)
         return user
     except User.DoesNotExist:
-        logger.debug('user %s does not exist !', id)
+        # logger.debug('user %s does not exist !', user_id)
         return None
 
 
@@ -21,7 +21,7 @@ def get_user_by_wallet_address(address):
         user = User.get(wallet_address=address)
         return user
     except User.DoesNotExist:
-        logger.debug('wallet %s does not exist !', address)
+        # logger.debug('wallet %s does not exist !', address)
         return None
 
 

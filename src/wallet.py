@@ -13,7 +13,7 @@ rpc_user = os.environ.get("RPC_USER")
 rpc_password = os.environ.get("RPC_PASSWORD")
 
 logger = util.get_logger('wallet')
-logger_rpc = util.get_logger('BitcoinRPC')
+# logger_rpc = util.get_logger('BitcoinRPC')
 
 
 def connect():
@@ -97,7 +97,7 @@ def check_balance(user_id, claimed_amount):
 
 
 def parse_incoming_transactions():
-    logger.info('parsing incoming transactions ...')
+    # logger.info('parsing incoming transactions ...')
     commands = [["listtransactions", '*', 100, 0]]
     rpc_connection = connect()
     result = rpc_connection.batch_(commands)
@@ -112,7 +112,7 @@ def parse_incoming_transactions():
                 raw_tx_rpc = str(transaction_rpc)
                 confirmations = transaction_rpc['confirmations']
                 status = db.get_transaction_status_by_txid(txid)
-                logger.debug('processing transaction -> status: %s, raw_tx: %s', status, raw_tx_rpc)
+                # logger.debug('processing transaction -> status: %s, raw_tx: %s', status, raw_tx_rpc)
                 if status == 'DOESNT_EXIST' and confirmations >= MIN_CONFIRMATIONS_FOR_DEPOSIT:
                     logger.info('new confirmed transaction received: %s', transaction_rpc)
                     if db.create_deposit_transaction(txid, amount, to_user, tx_time, raw_tx_rpc, 'CONFIRMED'):

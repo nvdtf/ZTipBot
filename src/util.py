@@ -18,8 +18,7 @@ def get_logger(name):
     file_handler = logging.handlers.TimedRotatingFileHandler('debug.log', when='midnight', backupCount=0)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
-    for handler in logger.handlers:
-        logger.removeHandler(handler)
+    logger.handlers = []
     logger.addHandler(file_handler)
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
