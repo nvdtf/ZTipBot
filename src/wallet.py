@@ -4,6 +4,9 @@ import util
 import os
 import db
 import datetime
+import logging
+
+logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 MIN_CONFIRMATIONS_FOR_DEPOSIT = 2
 
@@ -12,7 +15,7 @@ TOP_USERS_COUNT = 10
 rpc_user = os.environ.get("RPC_USER")
 rpc_password = os.environ.get("RPC_PASSWORD")
 
-logger = util.get_logger('wallet')
+logger = logging.getLogger("bot-wallet")
 # logger_rpc = util.get_logger('BitcoinRPC')
 
 
@@ -51,7 +54,7 @@ def get_balance(user_id):
 
 
 def make_transaction_to_address(user, amount, address):
-    txfee = 0.01
+    txfee = 0.0
     commands = [["settxfee", txfee]]
     rpc_connection = connect()
     result = rpc_connection.batch_(commands)

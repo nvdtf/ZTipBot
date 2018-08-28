@@ -6,17 +6,20 @@ import errno
 from socket import error as socket_error
 import discord
 import asyncio
-
+import logging.handlers
 import wallet
 import util
 
-logger = util.get_logger("main")
+
+logging.basicConfig(filename='bot.log', level=logging.INFO)
+
+logger = logging.getLogger("bot-main")
 
 AT_BOT = "<@" + os.environ.get('BOT_ID') + ">"
 
-BOT_VERSION = "0.4"
+BOT_VERSION = "0.4.5"
 
-DEPOSIT_CHECK_JOB = 10.0  # seconds
+DEPOSIT_CHECK_JOB = 60.0  # seconds
 
 CMD_HELP = "!help"
 CMD_BALANCE = "!balance"
@@ -234,24 +237,27 @@ async def handle_message(message):
             try:
                 amount = find_amount(message.content)
                 target_user_id = find_user_id(message.content)
-                asyncio.get_event_loop().create_task(post_dm(target_user_id, feat.response_templates["tip_received"], amount, message.author.id))
-                # if target_user_id == message.author.id:
-                #     post_response(message, feat.response_templates["cant_tip_yourself"])
-                # elif target_user_id == os.environ.get('BOT_ID'):
-                #     post_response(message, feat.response_templates["cant_tip_bot"])
-                # else:
-                #     target_user = await client.get_user_info(target_user_id)
-                #     wallet.make_transaction_to_user(message.author.id, amount, target_user.id, target_user.name)
-                #     asyncio.get_event_loop().create_task(
-                #         post_dm(target_user_id, feat.response_templates["tip_received"], amount, message.author.id))
-                #     post_response(message, feat.response_templates["success"])
-                #     if 1 <= amount <= 5:
-                #         asyncio.get_event_loop().create_task(react_to_message(message, 1))
-                #     elif 5 < amount <= 10:
-                #         asyncio.get_event_loop().create_task(react_to_message(message, 2))
-                #     elif amount > 10:
-                #         asyncio.get_event_loop().create_task(react_to_message(message, 3))
-                #     asyncio.get_event_loop().create_task(react_to_message(message, 1))
+                if target_user_id == message.author.id:
+                    post_response(message, feat.response_templates["cant_tip_yourself"])
+                elif target_user_id == os.environ.get('BOT_ID'):
+                    post_response(message, feat.response_templates["cant_tip_bot"])
+                else:
+                    target_user = await client.get_user_info(target_user_id)
+                    wallet.make_transaction_to_user(message.author.id, amount, target_user.id, target_user.name)
+                    try:
+                        asyncio.get_event_loop().create_task(
+                            post_dm(target_user_id, feat.response_templates["tip_received"], amount, message.author.id))
+                    except Exception as e:
+                        logger.error('could not send message')
+                        logger.exception(e)
+                    post_response(message, feat.response_templates["success"])
+                    if 1 <= amount <= 5:
+                        asyncio.get_event_loop().create_task(react_to_message(message, 1))
+                    elif 5 < amount <= 10:
+                        asyncio.get_event_loop().create_task(react_to_message(message, 2))
+                    elif amount > 10:
+                        asyncio.get_event_loop().create_task(react_to_message(message, 3))
+                    asyncio.get_event_loop().create_task(react_to_message(message, 1))
             except util.TipBotException as e:
                 if e.error_type == "amount_not_found":
                     post_response(message, feat.response_templates["amount_not_found"])
@@ -304,7 +310,7 @@ def find_amount(input_text):
 
 
 def find_user_id(input_text):
-    regex = r'(?:^|\s)<@(\w*)>(?=$|\s)'
+    regex = r'(?:^|\s)<@!?(\w*)>(?=$|\s)'
     matches = re.findall(regex, input_text, re.IGNORECASE)
     if len(matches) == 1:
         return matches[0].strip()
@@ -338,12 +344,13 @@ async def post_dm(user_id, text_list, *args):
 async def check_for_deposit():
     try:
         await asyncio.sleep(DEPOSIT_CHECK_JOB)
-        asyncio.get_event_loop().create_task(check_for_deposit())
         results = wallet.parse_incoming_transactions()
         for result in results:
             await post_dm(result[0], general_responses[result[1]], result[2])
+        asyncio.get_event_loop().create_task(check_for_deposit())
     except Exception as ex:
         logger.exception(ex)
+        asyncio.get_event_loop().create_task(check_for_deposit())
 
 
 @client.event

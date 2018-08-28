@@ -1,11 +1,14 @@
 import datetime
-import util
+import logging
 from peewee import *
 
 db = SqliteDatabase('ztipbot.db')
 
-logger = util.get_logger("db")
+logging.basicConfig(filename='bot.log', level=logging.INFO)
 
+logger = logging.getLogger("bot-db")
+
+logger.info('testing')
 
 def get_user_by_id(user_id):
     try:
